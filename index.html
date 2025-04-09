@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Live HTML Previewer</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #1a1a1a;
+      --editor-bg: #f0f0f0;
+      --border: #cccccc;
+      --button-bg: #007bff;
+      --button-hover: #0056b3;
+    }
+
+    body[data-theme="dark"] {
+      --bg: #1e1e1e;
+      --text: #f0f0f0;
+      --editor-bg: #2a2a2a;
+      --border: #444;
+      --button-bg: #4f46e5;
+      --button-hover: #3730a3;
+    }
+
+    body[data-theme="slate"] {
+      --bg: #f8fafc;
+      --text: #1e293b;
+      --editor-bg: #e2e8f0;
+      --border: #cbd5e1;
+      --button-bg: #0f172a;
+      --button-hover: #1e293b;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body, html {
+      height: 100%;
+      width: 100%;
+      font-family: 'Segoe UI', sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+    }
+
+    .container {
+      display: flex;
+      height: 100vh;
+    }
+
+    .editor {
+      width: 50%;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+      background: var(--editor-bg);
+      border-right: 1px solid var(--border);
+    }
+
+    .editor label {
+      font-weight: 600;
+      margin-top: 5px;
+    }
+
+    textarea {
+      width: 100%;
+      height: 25%;
+      resize: vertical;
+      padding: 12px;
+      font-family: monospace;
+      font-size: 14px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: #fff;
+      color: #000;
+    }
+
+    [data-theme="dark"] textarea {
+      background: #1a1a1a;
+      color: #f0f0f0;
+    }
+
+    [data-theme="slate"] textarea {
+      background: #f1f5f9;
+      color: #1e293b;
+    }
+
+    .preview {
+      width: 50%;
+      height: 100%;
+    }
+
+    iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+    }
+
+    .controls {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+    }
+
+    button, select {
+      padding: 10px 15px;
+      border-radius: 6px;
+      font-size: 14px;
+      border: none;
+      cursor: pointer;
+      background-color: var(--button-bg);
+      color: white;
+      transition: background 0.3s ease;
+    }
+
+    button:hover, select:hover {
+      background-color: var(--button-hover);
+    }
+
+    select {
+      background-color: var(--button-bg);
+      color: white;
+    }
+  </style>
+</head>
+<body data-theme="light">
+  <div class="container">
+    <div class="editor">
+      <div class="controls">
+        <button onclick="openInNewTab()">🔍 Preview on Large Screen</button>
+        <select id="themeSwitcher" onchange="switchTheme(this.value)">
+          <option value="light">🌞 Light</option>
+          <option value="dark">🌙 Dark</option>
+          <option value="slate">🪨 Slate</option>
+        </select>
+      </div>
+
+      <label for="htmlInput">index.html</label>
+      <textarea id="htmlInput" placeholder="Type HTML here...">&lt;h1&gt;Hello World&lt;/h1&gt;</textarea>
+
+      <label for="cssInput">style.css</label>
+      <textarea id="cssInput" placeholder="Type CSS here...">h1 { color: blue; }</textarea>
+
+      <label for="jsInput">script.js</label>
+      <textarea id="jsInput" placeholder="Type JS here...">console.log("Hello World");</textarea>
+    </div>
+
+    <div class="preview">
+      <iframe id="preview"></iframe>
+    </div>
+  </div>
+
+  <script>
+    const htmlInput = document.getElementById("htmlInput");
+    const cssInput = document.getElementById("cssInput");
+    const jsInput = document.getElementById("jsInput");
+    const previewFrame = document.getElementById("preview");
+    const themeSwitcher = document.getElementById("themeSwitcher");
+
+    function updatePreview() {
+      const html = htmlInput.value;
+      const css = `<style>${cssInput.value}</style>`;
+      const js = `<script>${jsInput.value}<\/script>`;
+      const fullContent = `${html}\n${css}\n${js}`;
+
+      const doc = previewFrame.contentDocument || previewFrame.contentWindow.document;
+      doc.open();
+      doc.write(fullContent);
+      doc.close();
+    }
+
+    function openInNewTab() {
+      const html = htmlInput.value;
+      const css = `<style>${cssInput.value}</style>`;
+      const js = `<script>${jsInput.value}<\/script>`;
+      const fullContent = `${html}\n${css}\n${js}`;
+      const blob = new Blob([fullContent], { type: "text/html" });
+      const url = URL.createObjectURL(blob);
+      window.open(url, "_blank");
+    }
+
+    function switchTheme(theme) {
+      document.body.setAttribute("data-theme", theme);
+    }
+
+    htmlInput.addEventListener("input", updatePreview);
+    cssInput.addEventListener("input", updatePreview);
+    jsInput.addEventListener("input", updatePreview);
+    window.addEventListener("load", updatePreview);
+  </script>
+</body>
+</html>
